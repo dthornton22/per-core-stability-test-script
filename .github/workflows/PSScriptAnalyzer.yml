@@ -1,23 +1,37 @@
 on: push
-name: Install and run PSScriptAnalyzer
 jobs:
   PSScriptAnalyzer:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
-    - name: Install PSScriptAnalyzer module
-      shell: pwsh
-      run: |
-        Set-PSRepository PSGallery -InstallationPolicy Trusted
-        Install-Module PSScriptAnalyzer -ErrorAction Stop
-    - name: Lint with PSScriptAnalyzer
-      shell: pwsh
-      run: |
-        Invoke-ScriptAnalyzer -Path *.ps1 -Recurse -Outvariable issues
-        $errors   = $issues.Where({$_.Severity -eq 'Error'})
-        $warnings = $issues.Where({$_.Severity -eq 'Warning'})
-        if ($errors) {
-            Write-Error "There were $($errors.Count) errors and $($warnings.Count) warnings total." -ErrorAction Stop
-        } else {
-            Write-Output "There were $($errors.Count) errors and $($warnings.Count) warnings total."
-        }
+    - name: Run PSScriptAnalyzer
+      uses: microsoft/psscriptanalyzer-action@v1.0
+      with:
+        # Specifies the path to the scripts or module to be analyzed. Wildcard characters are supported.
+        path: .\ # default is .\
+        # Uses only the custom rules defined in the specified paths to the analysis. To still use the built-in rules, add the -IncludeDefaultRules switch.
+        # customRulePath: # optional
+        # Adds rules defined in subdirectories of the CustomRulePath location.
+        # recurseCustomRulePath: # optional
+        # Omits the specified rules from the Script Analyzer test. Wildcard characters are supported.
+        # excludeRule: # optional
+        # Invoke default rules along with Custom rules.
+        # includeDefaultRules: # optional
+        # Runs only the specified rules in the Script Analyzer test.
+        # includeRule: # optional
+        # After running Script Analyzer with all rules, this parameter selects rule violations with the specified severity.
+        # severity: # optional
+        # Runs Script Analyzer on the files in the Path directory and all subdirectories recursively.
+        # recurse: # optional
+        # Returns rules that are suppressed, instead of analyzing the files in the path.
+        # suppressedOnly: # optional
+        # Fixes certain warnings which contain a fix in their DiagnosticRecord.
+        # fix: # optional
+        # Exits PowerShell and returns an exit code equal to the number of error records.
+        # enableExit: # optional
+        # File path that contains user profile or hash table for ScriptAnalyzer.
+        # settings: # optional
+        # Specifies where the path for the sarif file
+        output: results.sarif # default is results.sarif
+        # Exclude specific files from the sarif results. Uses regex pattern.
+        # ignorePattern: # optional
